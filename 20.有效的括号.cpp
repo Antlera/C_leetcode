@@ -7,15 +7,27 @@
 // @lc code=start
 class Solution {
 public:
-    bool isValid(string s) {
+    // bool isValid(string s) {
+    //     stack<char> stk;
+    //     for(auto c: s){
+    //         if(c == '(' ||c == '['|| c =='{') stk.push(c);//若为左括号入栈
+    //         else{
+    //             if (stk.size() && abs(stk.top() - c) <= 2)//查找ASCII码规律
+    //                 stk.pop();
+    //             else return false;
+    //         }
+    //     }
+    //     return stk.empty();
+    // }
+    bool isValid(string s)
+    {
         stack<char> stk;
-        for(auto c: s){
-            if(c == '(' ||c == '['|| c =='{') stk.push(c);//若为左括号入栈
-            else{
-                if (stk.size() && abs(stk.top() - c) <= 2)//查找ASCII码规律
-                    stk.pop();
-                else return false;
-            }
+        for(auto c : s){
+            if (c == '(' || c == '[' || c == '{')
+                stk.push(c);
+            else if (stk.size() && abs(stk.top() - c) <= 2)
+                stk.pop();
+            else return false;
         }
         return stk.empty();
     }
