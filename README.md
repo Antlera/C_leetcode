@@ -554,4 +554,346 @@
     }
 ```
 
+## 24.两两交换链表中的节点
 
+题目关键：画图！注意在断开链表之前注意保存结点即可
+
+**`Tag:`** `linked-list`
+
+```C++
+    ListNode* swapPairs(ListNode* head){
+        auto dummy = new ListNode(-1);
+        dummy->next = head;
+        auto p = dummy;
+        while(p->next&&p->next->next){//只有当后两个指针存在时，才进行调换
+            auto a = p->next, b = p->next->next;//注意保存链表
+            p->next = b;
+            a->next = b->next;
+            b->next = a;
+            p = a; 
+        }
+        return dummy->next;
+    }
+```
+
+## 25.K个一组翻转链表
+
+题目关键：画图！注意在断开链表之前注意保存结点即可。用循环k次判断是否足够k个结点。循环k-1次将两个用于反向的指针移动到末尾刚好能够完成链表的反转以及头尾的部分链接。
+
+**`Tag:`** `linked-list`
+
+```C++
+    ListNode* reverseKGroup(ListNode * head,int k){
+        auto dummy = new ListNode(-1);
+        dummy->next = head;
+        for(auto p = dummy;;){
+            auto q = p;
+            for(int i = 0;i < && q;i ++)q = q->next;
+            if(!q) break;
+            auto a = p->next,b = p->next->next;
+            for(int i = 0;i < k - 1;i++){
+                auto t = b->next;
+                b->next = a;
+                a = b,b = t;
+            }
+            auto c = p->next;
+            p->next = a,c -> next = b;
+            p = c;
+        }
+        return dummy->next;
+    }
+```
+
+## 26.删除有序数组中的重复项
+
+题目关键：与之前的不同的即保存，相同则跳过，实现上来说直接在原地保存
+
+**`Tag:`** `array`
+
+```C++
+    int removeDuplicates(vector<int> &nums){
+        int k = 0;
+        for(int i = 0;i < nums.size();i++){
+            if(!i || nums[i] != nums[i - 1]) nums[k++] = nums[i];
+        }
+        return k;
+    }
+```
+
+## 27.移除元素
+
+题目关键：符合要求则保存，不符合要去则略过即可
+
+**`Tag:`** `array`
+
+```C++
+    int removeElement(vector<int> &nums,int val){
+        int k = 0;
+        for(int i = 0;i < nums.size();i++){
+            if(nums[i] != val) nums[k++] = nums[i];
+        }
+        return k;
+    }
+```
+
+## 28.找出字符串中第一个匹配的下标
+
+题目关键：就是KMP算法，KMP的关键就是next数组也就是，到i为止的字符串后缀能往前匹配到多少前缀，j = ne[j]的含义就是用下一个符合的位置去继续匹配
+
+**`Tag:`** `String`
+
+```C++
+    int strStr(string s,string p){
+        int n = s.size(),m = p.size();
+        s = " " + s,p = " " + p;
+        vector<int> ne(m + 1, 0);
+        for(int i = 2,j = 0;i <= m;i++){
+            while(j && p[i] != p[j + 1]) j = ne[j];
+            if(p[i] == p[j + 1]) j ++ ;
+            ne[i] = j;
+        }
+
+        for(int i = 1,j = 0;i <= n;i++){
+            while(j && s[i] != p[j + 1]) j = ne[j];
+            if(s[i] == p[j + 1]) j ++;
+            if(j == m) return i - m;
+        }
+        return -1;
+
+    }
+```
+
+## 29.两数相除
+
+题目关键：模拟题，由于不能使用乘法，除法模运算，因此便使用减法来进行减去，并利用二进制优化，将减法变为二进制的单位减去，可以优化时间复杂度
+
+**`Tag:`** `Math`
+
+```C++
+    int divide(int a, int b){// a / b
+        typedef long long LL;
+        LL is_minus = 1;
+        if(x < 0 && y > 0 || x > 0 && y < 0) is_minus = -1;
+        vector<LL> exp;
+        LL a = abs((LL)x),b = abs((LL)y);
+        
+        for(LL i = b; i <= a;i = i + i) exp.push_back(i);
+
+        LL res = 0;
+        for(int i = exp.size() - 1;i >= 0;i --){
+            if(a >= exp[i])
+            {
+                a -= exp[i];
+                res +=(LL) 1 << i;
+            }
+        }
+        res *= is_minus;
+        if(res > INT_MAX || res < INT_MIN) return INT_MAX;
+        return res;
+    }
+```
+
+## 30.串联所有单词的子串
+
+题目关键：
+
+**`Tag:`** `String`
+
+```C++
+    vector<int> findSubString(string s,vector<string> &words){
+        vector<int> res;
+        if(s.empty()) return res;
+        unordered_map<string,int> tot;
+        for(auto &word: words) tot[word]++;
+        int n = s.size(),m = words.size(),w = words[0].size();
+        for(int i = 0;i < w;i++){
+            unordered_map<string,int> wd;
+            int cnt = 0;
+            for(int j = i ;j + w < n;){
+                if(j > i + m * w){
+                    auto word = s.substr(j - m * w, w);
+                    wd[word]--;
+                    if(wd[word] < tot[word]) cnt --;
+                }
+                auto word = s.substr(j,w);
+                wd[word] ++;
+                if(wd[word] <= tot[word]) cnt++;
+                if(cnt == m) res.push_back(j - (m - 1) * w);
+                j += w;
+            }
+        }
+        return res;
+    }
+```
+
+## 31.下一个排列
+
+题目关键：下一个排列的思想实际上就是找到一个非降序的，然后用尽量小的数字调换，并将之后的数字重新排列为升序(可能的最小排列)，如果全是降序则，降序的部分以及是最可能的最大值了
+
+**`Tag:`** `Math`
+
+```C++
+    void nextPermutation(vector<int>& nums){
+        int k = nums.size() - 1;
+        while(k && nums[k - 1] >= nums[k]) k --;//找到的nums[k - 1]就是第一个非降序的数字
+        if(k <= 0) reverse(nums.begin(),nums.end());
+        else{
+            int t = k;
+            while(t < nums.size() && nums[t] > nums[k - 1])t ++;//找到的nums[t - 1]就是最小的大于nums[k - 1]的数
+            swap(nums[t - 1],nums[k - 1]);
+            reverse(nums.begin() + k,nums.end());
+        }
+    }
+```
+
+## 32.最长有效括号
+
+题目关键：实际上有些类似双指针，右指针向前不断试探是否有更长的括号配对序列，当不能配对时，更新左指针，进入下一轮配对。并且两个可以入栈的左括号之间的序列一定是匹配完全的，因此长度可以累加进去。
+
+**`Tag:`** `String` `Two-Pointer`
+
+```C++
+    int longestValidParentheses(String s){
+        stack<int> stk;
+        int res = 0,start = -1;
+        for(int i = 0;i < s.size();i++){
+            if(s[i] == '(') stk.push(i);
+            else{
+                if(stk.size()){
+                    stk.pop();
+                    if(stk.size())//若还有左括号剩余，则当前匹配的最远距离是
+                        res = max(res, i - stk.top());
+                    else
+                        res = max(res, i - start);
+                }
+                else
+                    start = i;//之前的start到此无法匹配了，重新更新start
+            }
+        }
+        return res;
+    }
+```
+
+## 33.搜索旋转排列数组
+
+题目关键：通过二分先找到分界点，再根据查找target与nums[0]的关系分区段进行查找，二分查找的结果会是左边的最高点。注意在第二次二分确定左边界的时候由于+1是可能超界的因此，最后判断时应使用r。
+
+**`Tag:`** `Binary-Search`
+
+```C++
+    int search(vector<int> & nums, int target){
+       int l = 0, r = nums.size() - 1;
+        while(l < r){
+            int mid = l + r + 1 >> 1;
+            if(nums[mid] > nums[0]) l = mid;
+            else r = mid - 1;
+        }
+        cout << l << " " << r << endl;
+        if(target >= nums[0]) l = 0;
+        else l = r + 1, r = nums.size() - 1;
+        while(l < r){
+            int mid = l + r >> 1;
+            if(nums[mid] >= target) r = mid;
+            else l = mid + 1;
+        }
+        if(nums[r] == target) return l;
+        else return -1;
+    }
+```
+
+## 34.在排序数组中查找元素的第一个和最后一个位置
+
+题目关键：二分查找，注意判别条件即可
+
+**`Tag:`** `Binary-Search` `Two-Pointer`
+
+```C++
+    vector<int> searchRange(vector<int>& nums,int target){
+        if(nums.empty())return {-1,-1};
+        int l = 0, r = nums.size() - 1;
+        while(l < r){
+            int mid = l + r + 1>> 1;
+            if(nums[mid] <= target) l = mid;
+            else r = mid - 1;
+        }
+        cout << l << endl;
+        
+        int end = l;
+        l = 0, r = nums.size() - 1;
+        while(l < r){
+            int mid = l + r >> 1;
+            if(nums[mid] >= target) r = mid;
+            else l = mid + 1;
+        }
+        int start = l;
+        if(nums[start] != target) return {-1,-1};
+        return {start,end};
+         
+    }
+```
+
+## 35.搜索插入位置
+
+题目关键：二分查找注意搜索范围，插入位置可以在数组的末尾也就是nums.size()的位置
+
+**`Tag:`** `Binary-Search`
+
+```C++
+    int searchInsert(vector<int> nums,int target){
+        int l = 0, r = nums.size();
+        while(l < r){
+            int mid = l + r>> 1;
+            if(nums[mid] >= target) r = mid;
+            else l = mid + 1;
+        }
+        return r;
+    }
+```
+
+## 36.有效的数独
+
+题目关键：
+
+**`Tag:`** `Binary-Search`
+
+```C++
+    bool isValidSuduko(vector<vector<char>> board){
+        bool st[9];
+        for(int i = 0;i < 9;i ++){
+            memset(false,st,sizeof st);
+            for(int j = 0;j < 9;j ++){
+                if(board[i][j] != '.'){
+                    int t = board[i][j] - '1';
+                    if(st[t]) return false;
+                    else st[t] = true;
+                }
+            }
+        }
+
+        for(int i = 0;i < 9;i ++){
+            memset(false,st,sizeof st);
+            for(int j = 0;j < 9;j ++){
+                if(board[j][i] != '.'){
+                    int t = board[i][j] - '1';
+                    if(st[t]) return false;
+                    else st[t] = true;
+                }
+            } 
+        }
+
+        for(int i = 0;i < 3;i ++){
+            for(int j = 0;j < 3;j ++){
+                int a = 3 * i ,b = 3 * j;
+                memset(false,st,sizeof st);
+                for(int x = 0;x < 3;x++)
+                    for(int y = 0;y < 3;y++){
+                        if(board[a + x][b + y] != '.'){
+                            int t = board[a + x][b + y] - '1';
+                            if(st[t]) return false;
+                            else st[t] = true;
+                        }
+                    }
+            }
+        }
+    }
+```
